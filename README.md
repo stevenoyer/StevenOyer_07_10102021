@@ -9,7 +9,7 @@ Le projet consiste à construire un réseau social interne pour les employés de
 - Un éditeur de code
 - NodeJS
 
-## [:pencil2:] Packages utilisés-
+## [:pencil2:] Packages utilisés
 - En cours de développement...
 
 ## [:computer:] Commandes
