@@ -1,18 +1,18 @@
 # Groupomania - OpenClassrooms
 Le projet consiste à construire un réseau social interne pour les employés de Groupomania. Le but de cet outil est de faciliter les interactions entre collègues. Le département RH de Groupomania a laissé libre cours à son imagination pour les fonctionnalités du réseau et a imaginé plusieurs briques pour favoriser les échanges entre collègues.
 
-## Cours appliqués
+## [:tv:] Cours appliqués
 - [Créez une application web avec Vue.js](https://openclassrooms.com/fr/courses/6390311-creez-une-application-web-avec-vue-js)
 - [Implémentez vos bases de données relationnelles avec SQL](https://openclassrooms.com/fr/courses/6971126-implementez-vos-bases-de-donnees-relationnelles-avec-sql)
 
-## Outils nécessaires
+## [:hammer_and_wrench:] Outils nécessaires
 - Un éditeur de code
 - NodeJS
 
-## Packages utilisés-
+## [:pencil2:] Packages utilisés-
 - En cours de développement...
 
-## Commandes
+## [:computer:] Commandes
 ```cmd
 npm install
 ```
@@ -20,7 +20,7 @@ npm install
 node app.js || nodemon app.js
 ```
 
-## Fichier de configuration (.env)
+## [:gear:] Fichier de configuration (.env)
 ```cmd
 PORT=3000
 TOKEN_SECRET=''
@@ -31,7 +31,7 @@ DB_PASSWORD=''
 DB_COLLECTION=''
 ```
 
-## Compétences évaluées
+## [:star:] Compétences évaluées
 - Personnaliser le contenu envoyé à un client web
 - Authentifier un utilisateur et maintenir sa session
 - Gérer un stockage de données à l'aide de SQL
