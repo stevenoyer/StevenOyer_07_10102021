@@ -61,7 +61,7 @@ exports.newPost = (req, res, next) => {
     /* END DEBUG */
 
     let content = json.body.content
-    let created_by = json.body.user
+    let created_by = json.body.userId
 
     db.query(`INSERT INTO posts (content, created_by) VALUES("${content}", "${created_by}")`, (err, result) => {
         if (err)
@@ -100,5 +100,63 @@ exports.modifyPostById = (req, res, next) => {
             return res.status(401).json({message: err})
         }
         return res.status(200).json({message: 'La publication a bien été modifée.'})
+    })
+}
+
+// Récupération de tous les commentaires d'une publication
+exports.getAllComments = (req, res, next) => {
+    db.query(`
+    SELECT c.* , u.*
+    FROM comments AS c
+    LEFT JOIN users AS u ON u.id = c.created_by
+    WHERE c.parent = ${req.params.id}
+    `, (err, result) => {
+        if (err)
+        {
+            console.log(err)
+            return res.status(401).json({message: err})
+        }
+        return res.status(200).json(result)
+    })
+}
+
+// Publication d'un commentaire sur une publication
+exports.newComment = (req, res, next) => {
+    /* DEBUG */
+    const body = JSON.stringify(req.body)
+    const json = JSON.parse(body)
+    /* END DEBUG */
+
+    let content = json.body.content
+    let created_by = json.body.userId
+    let parent = req.params.id
+
+    db.query(`INSERT INTO comments (content, parent, created_by) VALUES("${content}", "${parent}", "${created_by}")`, (err, result) => {
+        if (err)
+        {
+            console.log(err)
+            return res.status(401).json({message: err})
+        }
+        return res.status(200).json({message: 'Votre commentaire a bien été posté.'})
+    })
+}
+
+// Suppression d'un commentaire sur une publication
+exports.deleteComment = (req, res, next) => {
+    /* DEBUG */
+    const body = JSON.stringify(req.body)
+    const json = JSON.parse(body)
+    /* END DEBUG */
+
+    let parent = req.params.id
+    let commentId = json.body.commendId
+
+    db.query(`DELETE FROM comments WHERE parent = ${parent} AND id = ${commentId}`, (err, result) => {
+        if (err)
+        {
+            console.log(err)
+            return res.status(401).json({message: err})
+        }
+        return res.status(200).json({message: 'Le commentaire a bien été supprimé.'})
     })
 }
