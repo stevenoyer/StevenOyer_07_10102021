@@ -106,6 +106,84 @@ exports.login = (req, res, next) => {
     })
 }
 
+// Mise-à-jour de l'utilisateur
+exports.update = (req, res, next) => {
+    /* DEBUG */
+    const body = JSON.stringify(req.body)
+    const json = JSON.parse(body)
+    /* END DEBUG */
+    let userId = json.body.userId
+    let nom = json.body.nom
+    let prenom = json.body.prenom
+    let email = json.body.email
+    let mdp = json.body.pass
+
+    console.log(userId, nom, prenom, email, mdp)
+
+    // Modification des informations de l'utilisateur
+    db.query(`UPDATE users SET nom = '${nom}', prenom = '${prenom}', email = '${email}' WHERE id = '${userId}'`, (err, result) => {
+        if (err)
+        {
+            console.log(err)
+            return res.status(200).json({message: err})
+        }
+        console.log('Le profil a bien été modifié.')
+    })
+
+    // Modification de l'image avatar
+    if (req.file)
+    {
+        console.log(`${req.protocol}://${req.get('host')}/${req.file.path}`)
+        let avatar = req.protocol + '://' + req.get('host') + '/' + req.file.path
+        db.query(`UPDATE users SET avatar = '${avatar}' WHERE id = '${userId}'`, (err, result) => {
+            if (err)
+            {
+                console.log(err)
+                return res.status(200).json({message: err})
+            }
+            console.log('L\'avatar a bien été modifié.')
+        })
+    }
+
+    if (mdp)
+    {
+        bcrypt.hash(mdp, 10, (err, hash) => {
+            if (err)
+            {
+                console.log(err)
+                return res.status(200).json({message: err})
+            }
+
+            db.query(`UPDATE users SET pass = '${hash}' WHERE id = '${userId}'`, (err, result) => {
+                if (err)
+                {
+                    console.log(err)
+                    return res.status(200).json({message: err})
+                }
+
+                console.log('Le mot de passe a bien été modifié.')
+            })
+        })
+    }
+
+    db.query(`SELECT * FROM users WHERE id = '${userId}'`, (err, result) => {
+        if (err)
+        {
+            console.log(err)
+            return res.status(200).json({message: err})
+        }
+
+        return res.status(200).json({
+            userId: result[0].id,
+            nom: result[0].nom,
+            prenom: result[0].prenom,
+            email: result[0].email,
+            admin: result[0].isAdmin,
+            avatar: result[0].avatar
+        })
+    })
+}
+
 // Suppression de l'utilisateur
 exports.delete = (req, res, next) => {
     db.query(`DELETE FROM users WHERE id = ${req.params.id}`, (err, result, field) => {
