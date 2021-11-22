@@ -15,8 +15,8 @@ router.delete('/:id', postsCtrl.deletePostById)
 router.get('/user:id/posts', postsCtrl.getUserPosts)
 
 // Commentaires
-//router.get('/:id/comments', postsCtrl.getAllComments)
-//router.post('/:id/comments', postsCtrl.newComment)
-//router.delete('/:id/comments', postsCtrl.deleteComment)
+router.get('/:id/comments', postsCtrl.getAllComments)
+router.post('/:id/comments', postsCtrl.newComment)
+router.delete('/:id/comments', postsCtrl.deleteComment)
 
 module.exports = router
