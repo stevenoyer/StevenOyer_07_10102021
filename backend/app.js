@@ -8,7 +8,7 @@ const xss = require('xss-clean')
 
 // Routes
 const auth = require('./routes/auth')
-//const posts = require('./routes/posts')
+const posts = require('./routes/posts')
 
 // App
 app.use(cors())
@@ -17,7 +17,7 @@ app.use(helmet())
 app.use(xss())
 app.use('/images', express.static('images'))
 app.use('/api/auth', auth)
-/* app.use('/api/posts', posts) */
+app.use('/api/posts', posts)
 
 
 
