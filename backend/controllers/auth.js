@@ -31,7 +31,7 @@ exports.signup = (req, res, next) => {
         return res.status(200).json({error: 'Le mot de passe doit contenir entre 6 et 35 caractères.'})
     }
 
-    db.query(`SELECT * FROM users WHERE email = '${email}'`, (err, results, rows) => {
+    db.query(`SELECT * FROM users WHERE email = "${email}"`, (err, results, rows) => {
         console.log(results.length)
         if (results.length > 0)
         {
@@ -46,7 +46,7 @@ exports.signup = (req, res, next) => {
                 }
                 console.log('Email : ', email, ' / Prenom : ', prenom, ' / Nom : ', nom, ' / Mdp : ', mdp, ' / Mdp hash : ', hash)
 
-                db.query(`INSERT INTO users (nom, prenom, email, pass, avatar) VALUES ('${nom}', '${prenom}', '${email}', '${hash}', NULL)`, (err, results, fields) => {
+                db.query(`INSERT INTO users (nom, prenom, email, pass, avatar) VALUES ("${nom}", "${prenom}", "${email}", "${hash}", NULL)`, (err, results, fields) => {
                     if (err)
                     {
                         console.log(err)
@@ -71,7 +71,7 @@ exports.login = (req, res, next) => {
 
     console.log('Email :', email, 'MDP :', mdp)
 
-    db.query(`SELECT * FROM users WHERE email = '${email}'`, (err, results, rows) => {
+    db.query(`SELECT * FROM users WHERE email = "${email}"`, (err, results, rows) => {
         console.log('Res =>', results)
         if (results.length > 0)
         {
@@ -121,7 +121,7 @@ exports.update = (req, res, next) => {
     console.log(userId, nom, prenom, email, mdp)
 
     // Modification des informations de l'utilisateur
-    db.query(`UPDATE users SET nom = '${nom}', prenom = '${prenom}', email = '${email}' WHERE id = '${userId}'`, (err, result) => {
+    db.query(`UPDATE users SET nom = "${nom}", prenom = "${prenom}", email = "${email}" WHERE id = "${userId}"`, (err, result) => {
         if (err)
         {
             console.log(err)
@@ -135,7 +135,7 @@ exports.update = (req, res, next) => {
     {
         console.log(`${req.protocol}://${req.get('host')}/${req.file.path}`)
         let avatar = req.protocol + '://' + req.get('host') + '/' + req.file.path
-        db.query(`UPDATE users SET avatar = '${avatar}' WHERE id = '${userId}'`, (err, result) => {
+        db.query(`UPDATE users SET avatar = "${avatar}" WHERE id = "${userId}"`, (err, result) => {
             if (err)
             {
                 console.log(err)
@@ -154,7 +154,7 @@ exports.update = (req, res, next) => {
                 return res.status(200).json({message: err})
             }
 
-            db.query(`UPDATE users SET pass = '${hash}' WHERE id = '${userId}'`, (err, result) => {
+            db.query(`UPDATE users SET pass = "${hash}" WHERE id = "${userId}"`, (err, result) => {
                 if (err)
                 {
                     console.log(err)
@@ -166,7 +166,7 @@ exports.update = (req, res, next) => {
         })
     }
 
-    db.query(`SELECT * FROM users WHERE id = '${userId}'`, (err, result) => {
+    db.query(`SELECT * FROM users WHERE id = "${userId}"`, (err, result) => {
         if (err)
         {
             console.log(err)
