@@ -7,8 +7,8 @@ const router = express.Router()
 
 router.post('/signup', authCtrl.signup)
 router.post('/login', authCtrl.login)
+router.delete('/delete/:id', authCtrl.delete)
 //router.post('/update', auth, upload_file, authCtrl.update)
-//router.post('/delete/:id', authCtrl.delete)
 router.use(authCtrl.errors)
 
 module.exports = router

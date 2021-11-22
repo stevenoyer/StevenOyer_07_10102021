@@ -2,8 +2,8 @@ const bcrypt = require('bcrypt')
 const fs = require('fs')
 const db = require('../db-steven')
 const jwt = require('jsonwebtoken')
-const { exit } = require('process')
 
+// Inscription de l'utilisateur
 exports.signup = (req, res, next) => {
     /* DEBUG */
     const body = JSON.stringify(req.body)
@@ -59,6 +59,7 @@ exports.signup = (req, res, next) => {
     })
 }
 
+// Connexion de l'utilisateur
 exports.login = (req, res, next) => {
     /* DEBUG */
     const body = JSON.stringify(req.body)
@@ -102,6 +103,28 @@ exports.login = (req, res, next) => {
             console.log('Ce compte n\'existe pas ou plus.')
             res.status(404).json({message: 'Ce compte n\'existe pas ou plus.'})
         }
+    })
+}
+
+// Suppression de l'utilisateur
+exports.delete = (req, res, next) => {
+    db.query(`DELETE FROM users WHERE id = ${req.params.id}`, (err, result, field) => {
+        if (err)
+        {
+            console.log(err)
+            return res.status(400).json({message: err})
+        }
+
+        fs.unlink('./images/' + req.params.id, (url, err) => {
+            if (err)
+            {
+                return console.log(err)
+            }
+
+            return console.log('Suppression de l\'image de l\'utilisateur ' + req.params.id + ' a bien été supprimé.')
+        })
+
+        return res.status(200).json(result)
     })
 }
 
