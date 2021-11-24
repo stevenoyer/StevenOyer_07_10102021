@@ -1,7 +1,6 @@
 <template>
     <div class="container-fluid container-md py-5">
-        <form class="form-signup">
-
+        <div class="form-signup">
             <h1 class="text-danger text-center text-uppercase" v-if="mode == 'login'">Connexion</h1>
             <h1 class="text-danger text-center text-uppercase" v-else>Inscription</h1>
 
@@ -12,35 +11,35 @@
 
             <div class="row" v-if="mode == 'create'">
                 <div class="col-12 col-md-6">
-                    <div class="mb-3">
+                    <div class="mb-3 form-row">
                         <label for="prenom" class="form-label">Prénom</label>
-                        <input id="prenom" type="text" name="prenom" class="form-control" placeholder="John">
+                        <input id="prenom" type="text" class="form-control" v-model="prenom" placeholder="John">
                     </div>
                 </div>
 
                 <div class="col-12 col-md-6">
-                    <div class="mb-3">
+                    <div class="mb-3 form-row">
                         <label for="nom" class="form-label">Nom</label>
-                        <input id="nom" type="text" name="nom" class="form-control" placeholder="Doe">
+                        <input id="nom" type="text" class="form-control" v-model="nom" placeholder="Doe">
                     </div>
                 </div>
             </div>
             
-            <div class="mb-3">
+            <div class="mb-3 form-row">
                 <label for="email" class="form-label">Adresse e-mail</label>
-                <input id="email" type="email" name="email" class="form-control" placeholder="johne.doe@email.com">
+                <input id="email" type="email" class="form-control" v-model="email" placeholder="johne.doe@email.com">
             </div>
 
-            <div class="mb-3">
+            <div class="mb-3 form-row">
                 <label for="pass" class="form-label">Mot de passe</label>
-                <input id="pass" type="password" name="pass" class="form-control" placeholder="***********">
+                <input id="pass" type="password" class="form-control" v-model="pass" placeholder="***********">
             </div>
 
-            <div class="mb-3 text-end">
-                <input type="submit" name="signup" class="btn btn-primary disabled" v-if="mode == 'login'" value="Se connecter">
-                <input type="submit" name="signup" class="btn btn-primary disabled" v-else value="S'inscrire">
+            <div class="mb-3 text-end form-row">
+                <button class="btn btn-primary disabled" v-if="mode == 'login'">Se connecter</button>
+                <button @click="createAccount()" :class="{'disabled' : !validateFields}" class="btn btn-primary" v-else>S'inscrire</button>
             </div>
-        </form>
+        </div>
     </div>
 </template>
 
@@ -50,6 +49,27 @@
         data: () => {
             return {
                 mode: 'login',
+                prenom: '',
+                nom: '',
+                email: '',
+                pass: ''
+            }
+        },
+        computed: {
+            validateFields: function() {
+                if (this.mode == 'create') {
+                    if (this.prenom != "" && this.nom != "" && this.email != "" && this.pass != "") {
+                        return true
+                    }else {
+                        return false
+                    }
+                }else {
+                    if (this.email != "" && this.pass != "") {
+                        return true
+                    }else {
+                        return false
+                    }
+                }
             }
         },
         methods: {
@@ -58,6 +78,18 @@
             },
             switchLogin: function() {
                 this.mode = 'login'
+            },
+            createAccount: function() {
+                this.$store.dispatch('createAccount', {
+                    prenom: this.prenom,
+                    nom: this.nom,
+                    email: this.email,
+                    pass: this.pass
+                }).then(function(response) {
+                    console.log(response)
+                }).error(function(error) {
+                    console.log(error)
+                })
             }
         }
     }

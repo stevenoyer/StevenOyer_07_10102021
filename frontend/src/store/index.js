@@ -6,6 +6,10 @@ export default createStore({
   mutations: {
   },
   actions: {
+    createAccount: ({commit}, userInfos) => {
+     commit
+     console.log(userInfos)
+    }
   },
   modules: {
   }

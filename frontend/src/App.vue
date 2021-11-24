@@ -1,6 +1,7 @@
 <template>
     <div>
         <Header />
+        <router-link to="/login">Test</router-link>
         <router-view />
     </div>
 </template>
