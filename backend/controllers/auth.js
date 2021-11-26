@@ -5,15 +5,11 @@ const jwt = require('jsonwebtoken')
 
 // Inscription de l'utilisateur
 exports.signup = (req, res, next) => {
-    /* DEBUG */
-    const body = JSON.stringify(req.body)
-    const json = JSON.parse(body)
-    /* END DEBUG */
-    
-    let email = json.body.email
-    let prenom = json.body.prenom
-    let nom = json.body.nom
-    let mdp = json.body.pass
+   
+    let email = req.body.email
+    let prenom = req.body.prenom
+    let nom = req.body.nom
+    let mdp = req.body.pass
 
     console.log('Email : ', email, ' / Prenom : ', prenom, ' / Nom : ', nom, ' / Mdp : ', mdp)
 
@@ -61,13 +57,9 @@ exports.signup = (req, res, next) => {
 
 // Connexion de l'utilisateur
 exports.login = (req, res, next) => {
-    /* DEBUG */
-    const body = JSON.stringify(req.body)
-    const json = JSON.parse(body)
-    /* END DEBUG */
 
-    let email = json.body.email
-    let mdp = json.body.pass
+    let email = req.body.email
+    let mdp = req.body.pass
 
     console.log('Email :', email, 'MDP :', mdp)
 
@@ -108,15 +100,11 @@ exports.login = (req, res, next) => {
 
 // Mise-à-jour de l'utilisateur
 exports.update = (req, res, next) => {
-    /* DEBUG */
-    const body = JSON.stringify(req.body)
-    const json = JSON.parse(body)
-    /* END DEBUG */
-    let userId = json.body.userId
-    let nom = json.body.nom
-    let prenom = json.body.prenom
-    let email = json.body.email
-    let mdp = json.body.pass
+    let userId = req.body.userId
+    let nom = req.body.nom
+    let prenom = req.body.prenom
+    let email = req.body.email
+    let mdp = req.body.pass
 
     console.log(userId, nom, prenom, email, mdp)
 
@@ -170,7 +158,7 @@ exports.update = (req, res, next) => {
         if (err)
         {
             console.log(err)
-            return res.status(200).json({message: err})
+            return res.status(401).json({message: err})
         }
 
         return res.status(200).json({
