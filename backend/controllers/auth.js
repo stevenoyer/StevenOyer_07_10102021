@@ -80,7 +80,7 @@ exports.login = (req, res, next) => {
                         nom: results[0].nom,
                         prenom: results[0].prenom,
                         email: results[0].email,
-                        admin: results[0].isAdmin,
+                        admin: results[0].admin,
                         token: jwt.sign({
                             userId: results[0].id
                         }, process.env.SECRET_TOKEN, {
@@ -166,7 +166,7 @@ exports.update = (req, res, next) => {
             nom: result[0].nom,
             prenom: result[0].prenom,
             email: result[0].email,
-            admin: result[0].isAdmin,
+            admin: result[0].admin,
             avatar: result[0].avatar
         })
     })

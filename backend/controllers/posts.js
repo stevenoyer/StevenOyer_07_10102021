@@ -82,12 +82,7 @@ exports.deletePostById = (req, res, next) => {
 
 // Modification d'une publication
 exports.modifyPostById = (req, res, next) => {
-    /* DEBUG */
-    const body = JSON.stringify(req.body)
-    const json = JSON.parse(body)
-    /* END DEBUG */
-
-    let content = json.body.content
+    let content = req.body.content
     db.query(`UPDATE posts SET content = "${content}" WHERE id = ${req.params.id}`, (err, result) => {
         if (err)
         {
