@@ -13,11 +13,8 @@
                         <li class="nav-item" v-if="connected">
                             <router-link class="nav-link btn btn-info me-3" aria-current="page" to="/profile">Mon profil</router-link>
                         </li>
-                        <li class="nav-item" v-if="connected">
+                        <li class="nav-item" v-show="connected">
                             <a class="nav-link btn btn-danger" @click="disconnect()">Se déconnecter</a>
-                        </li>
-                        <li>
-                            <router-link class="nav-link btn btn-info me-3" aria-current="page" to="/profil">Mon profil</router-link>
                         </li>
                     </ul>
                 </div>
@@ -33,22 +30,22 @@
 </style>
 
 <script>
+
+import { mapState } from 'vuex'
+
 export default {
     name: 'Header',
     data() {
         return {
-            connected: false
+            
         }
     },
     computed: {
-
+        ...mapState(['connected'])
     },
     methods: {
         disconnect() {
-            //this.$store.dispatch('disconnect')
-            localStorage.removeItem('user')
-            location.href = '/'
-            this.connected = false
+            this.$store.dispatch('disconnect')
         }
     }
 }
