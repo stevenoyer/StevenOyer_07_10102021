@@ -5,7 +5,7 @@ const env = require('dotenv').config()
 exports.getPosts = (req, res, next) => {
     console.log('test')
     db.query(`
-        SELECT p.*, u.*
+        SELECT p.*, u.id AS userId, u.nom AS nom, u.prenom AS prenom, u.avatar AS avatar, u.email AS email, u.admin AS admin
         FROM posts AS p
         LEFT JOIN users AS u ON p.created_by = u.id
         ORDER BY p.created DESC`
@@ -22,7 +22,7 @@ exports.getPosts = (req, res, next) => {
 // Récupération d'une seule publication
 exports.getPostById = (req, res, next) => {
     db.query(`
-        SELECT p.*, u.*
+        SELECT p.*, u.id AS userId, u.nom AS nom, u.prenom AS prenom, u.avatar AS avatar, u.email AS email, u.admin AS admin
         FROM posts AS p
         LEFT JOIN users AS u ON p.created_by = u.id
         WHERE p.id = ${req.params.id}`
@@ -39,7 +39,7 @@ exports.getPostById = (req, res, next) => {
 // Récupération des publications d'un utilisateur
 exports.getUserPosts = (req, res, next) => {
     db.query(`
-        SELECT p.*, u.*
+        SELECT p.*, u.id AS userId, u.nom AS nom, u.prenom AS prenom, u.avatar AS avatar, u.email AS email, u.admin AS admin
         FROM posts AS p
         LEFT JOIN users AS u ON p.created_by = u.id
         WHERE p.created_by = ${req.params.id}`
@@ -101,7 +101,7 @@ exports.modifyPostById = (req, res, next) => {
 // Récupération de tous les commentaires d'une publication
 exports.getAllComments = (req, res, next) => {
     db.query(`
-    SELECT c.*, u.*
+    SELECT c.*, u.id AS userId, u.nom AS nom, u.prenom AS prenom, u.avatar AS avatar, u.email AS email, u.admin AS admin
     FROM comments AS c
     LEFT JOIN users AS u ON u.id = c.created_by
     WHERE c.parent = ${req.params.id}
