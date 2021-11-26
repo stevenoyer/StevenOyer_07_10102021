@@ -1,14 +1,9 @@
 <template>
     <div>
-        <Header />
-        <router-link to="/login">Test</router-link>
-        <router-view />
+      <Header />
     </div>
+  <router-view/>
 </template>
-
-<style scoped>
-
-</style>
 
 <script>
     import Header from './components/Header.vue'

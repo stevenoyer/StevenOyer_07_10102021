@@ -1,8 +1,8 @@
 <template>
     <div class="container-fluid container-md py-5">
         <div class="form-signup">
-            <h1 class="text-danger text-center text-uppercase" v-if="mode == 'login'">Connexion</h1>
-            <h1 class="text-danger text-center text-uppercase" v-else>Inscription</h1>
+            <h2 class="text-danger text-center text-uppercase" v-if="mode == 'login'">Connexion</h2>
+            <h2 class="text-danger text-center text-uppercase" v-else>Inscription</h2>
 
             <div class="text-center py-2">
                 <p class="link" v-if="mode == 'login'"><span @click="switchCreate()">Vous n'avez pas de compte ?</span></p>
@@ -36,14 +36,18 @@
             </div>
 
             <div class="mb-3 text-end form-row">
-                <button class="btn btn-primary disabled" v-if="mode == 'login'">Se connecter</button>
-                <button @click="createAccount()" :class="{'disabled' : !validateFields}" class="btn btn-primary" v-else>S'inscrire</button>
+                <button @click="login()" class="btn btn-primary" :class="{'disabled' : !validateFields}" v-if="mode == 'login'">Se connecter</button>
+                <button @click="create()" class="btn btn-primary" :class="{'disabled' : !validateFields}" v-else>S'inscrire</button>
             </div>
         </div>
     </div>
 </template>
 
 <script>
+
+    import { mapState } from 'vuex'
+
+    const axios = require('axios').default
     export default {
         name: 'Login',
         data: () => {
@@ -70,7 +74,8 @@
                         return false
                     }
                 }
-            }
+            },
+            ...mapState(['connected'])
         },
         methods: {
             switchCreate: function() {
@@ -79,17 +84,56 @@
             switchLogin: function() {
                 this.mode = 'login'
             },
-            createAccount: function() {
-                this.$store.dispatch('createAccount', {
+            login: function(data) {
+                let obj = {}
+
+                if (data) {
+                    obj = {
+                        email: data.email,
+                        pass: data.pass
+                    }
+                }else {
+                    obj = {
+                        email: this.email,
+                        pass: this.pass
+                    }
+                }
+                axios.post('http://127.0.0.1:3200/api/auth/login', obj)
+                .then(response => {
+                    if (response.status != 200) {
+                        alert('Une erreur est survenue lors de la connexion à votre compte.')
+                    }
+
+                    if (response.data.userId) {
+                        this.$store.dispatch('loginAccount', {
+                            connected: true,
+                            userId: response.data.userId,
+                            prenom: response.data.prenom,
+                            nom: response.data.nom,
+                            email: response.data.email,
+                            admin: response.data.admin,
+                            token: response.data.token
+                        })
+                        this.$router.push('/')
+                    }
+                }).catch(error => {
+                    console.log(error)
+                })
+            },
+            create: function() {
+                console.log(this.email, this.pass, this.nom, this.prenom)
+                axios.post('http://127.0.0.1:3200/api/auth/signup', {
                     prenom: this.prenom,
                     nom: this.nom,
                     email: this.email,
                     pass: this.pass
-                }).then(function(response) {
+                }).then(response => {
                     console.log(response)
-                }).error(function(error) {
-                    console.log(error)
-                })
+                    if (response.status != 201) {
+                        alert('Une erreur est survenue lors de la création du compte.')
+                    }
+                    this.login({email: this.email, pass: this.pass})
+                }).catch(error => console.log(error))
             }
         }
     }

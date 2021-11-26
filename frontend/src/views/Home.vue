@@ -1,18 +1,30 @@
 <template>
-  <div class="home">
-    <img alt="Vue logo" src="../assets/logo.png">
-    <Home />
+  <div class="containerfluid container-md mt-5">
+    <div v-show="!connected" id="login">
+      <h1 class="text-center">Bienvenue sur Groupomania</h1>
+      <Login />
+    </div>
+
+    <div id="posts">
+      <Posts />
+    </div>
   </div>
 </template>
 
 <script>
-// @ is an alias to /src
-import Home from '@/components/Home.vue'
 
-export default {
-  name: 'Home',
-  components: {
-    Home
+  import Login from '../components/Login.vue'
+  import { mapState } from 'vuex'
+  import Posts from '../components/Posts.vue'
+
+  export default {
+    name: 'Home',
+    components: {
+      Login,
+      Posts
+    },
+    computed: {
+      ...mapState(['connected', 'token'])
+    }
   }
-}
 </script>
