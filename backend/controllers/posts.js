@@ -5,7 +5,7 @@ const env = require('dotenv').config()
 exports.getPosts = (req, res, next) => {
     console.log('test')
     db.query(`
-        SELECT p.* 
+        SELECT p.*, u.id AS userId, u.nom AS nom, u.prenom AS prenom, u.avatar AS avatar, u.email AS email, u.admin AS admin
         FROM posts AS p
         LEFT JOIN users AS u ON p.created_by = u.id
         ORDER BY p.created DESC`
@@ -22,7 +22,7 @@ exports.getPosts = (req, res, next) => {
 // Récupération d'une seule publication
 exports.getPostById = (req, res, next) => {
     db.query(`
-        SELECT p.* 
+        SELECT p.*, u.id AS userId, u.nom AS nom, u.prenom AS prenom, u.avatar AS avatar, u.email AS email, u.admin AS admin
         FROM posts AS p
         LEFT JOIN users AS u ON p.created_by = u.id
         WHERE p.id = ${req.params.id}`
@@ -39,7 +39,7 @@ exports.getPostById = (req, res, next) => {
 // Récupération des publications d'un utilisateur
 exports.getUserPosts = (req, res, next) => {
     db.query(`
-        SELECT p.* 
+        SELECT p.*, u.id AS userId, u.nom AS nom, u.prenom AS prenom, u.avatar AS avatar, u.email AS email, u.admin AS admin
         FROM posts AS p
         LEFT JOIN users AS u ON p.created_by = u.id
         WHERE p.created_by = ${req.params.id}`
@@ -55,13 +55,8 @@ exports.getUserPosts = (req, res, next) => {
 
 // Création d'une publication
 exports.newPost = (req, res, next) => {
-    /* DEBUG */
-    const body = JSON.stringify(req.body)
-    const json = JSON.parse(body)
-    /* END DEBUG */
-
-    let content = json.body.content
-    let created_by = json.body.userId
+    let content = req.body.content
+    let created_by = req.body.userId
 
     db.query(`INSERT INTO posts (content, created_by) VALUES("${content}", "${created_by}")`, (err, result) => {
         if (err)
@@ -87,12 +82,7 @@ exports.deletePostById = (req, res, next) => {
 
 // Modification d'une publication
 exports.modifyPostById = (req, res, next) => {
-    /* DEBUG */
-    const body = JSON.stringify(req.body)
-    const json = JSON.parse(body)
-    /* END DEBUG */
-
-    let content = json.body.content
+    let content = req.body.content
     db.query(`UPDATE posts SET content = "${content}" WHERE id = ${req.params.id}`, (err, result) => {
         if (err)
         {
@@ -106,7 +96,7 @@ exports.modifyPostById = (req, res, next) => {
 // Récupération de tous les commentaires d'une publication
 exports.getAllComments = (req, res, next) => {
     db.query(`
-    SELECT c.* , u.*
+    SELECT c.*, u.id AS userId, u.nom AS nom, u.prenom AS prenom, u.avatar AS avatar, u.email AS email, u.admin AS admin
     FROM comments AS c
     LEFT JOIN users AS u ON u.id = c.created_by
     WHERE c.parent = ${req.params.id}
@@ -122,13 +112,8 @@ exports.getAllComments = (req, res, next) => {
 
 // Publication d'un commentaire sur une publication
 exports.newComment = (req, res, next) => {
-    /* DEBUG */
-    const body = JSON.stringify(req.body)
-    const json = JSON.parse(body)
-    /* END DEBUG */
-
-    let content = json.body.content
-    let created_by = json.body.userId
+    let content = req.body.content
+    let created_by = req.body.userId
     let parent = req.params.id
 
     db.query(`INSERT INTO comments (content, parent, created_by) VALUES("${content}", "${parent}", "${created_by}")`, (err, result) => {
@@ -143,13 +128,8 @@ exports.newComment = (req, res, next) => {
 
 // Suppression d'un commentaire sur une publication
 exports.deleteComment = (req, res, next) => {
-    /* DEBUG */
-    const body = JSON.stringify(req.body)
-    const json = JSON.parse(body)
-    /* END DEBUG */
-
     let parent = req.params.id
-    let commentId = json.body.commendId
+    let commentId = req.body.commendId
 
     db.query(`DELETE FROM comments WHERE parent = ${parent} AND id = ${commentId}`, (err, result) => {
         if (err)
