@@ -10,8 +10,8 @@
                   <div class="user-avatar">
                     <img src="https://bootdey.com/img/Content/avatar/avatar7.png" alt="Maxwell Admin">
                   </div>
-                  <h5 class="user-name">{{ user }}</h5>
-                  <h6 class="user-email">{{ mail }}</h6>
+                  <h5 class="user-name">{{ prenom }} {{ nom }}</h5>
+                  <h6 class="user-email">{{ email }}</h6>
                 </div>
               </div>
             </div>
@@ -26,20 +26,20 @@
                 </div>
                 <div class="col-xl-6 col-lg-6 col-md-6 col-sm-6 col-12 mt-2">
                   <div class="form-group">
-                    <label for="nom">Prénom</label>
-                    <input type="text" class="form-control" id="nom" placeholder="John">
+                    <label for="prenom">Prénom</label>
+                    <input type="text" class="form-control" :v-model="newPrenom" id="prenom" placeholder="John" :value="prenom">
                   </div>
                 </div>
                 <div class="col-xl-6 col-lg-6 col-md-6 col-sm-6 col-12 mt-2">
                   <div class="form-group">
                     <label for="nom">Nom</label>
-                    <input type="text" class="form-control" id="nom" placeholder="Doe">
+                    <input type="text" class="form-control" :v-model="newNom" id="nom" placeholder="Doe" :value="nom">
                   </div>
                 </div>
                 <div class="col-xl-6 col-lg-6 col-md-6 col-sm-6 col-12 my-4">
                   <div class="form-group">
                     <label for="email">E-mail</label>
-                    <input type="email" class="form-control" id="email" placeholder="john.doe@example.com">
+                    <input type="email" class="form-control" :v-model="newEmail" id="email" placeholder="john.doe@example.com" :value="email">
                   </div>
                 </div>
                 <div class="col-xl-6 col-lg-6 col-md-6 col-sm-6 col-12 mb-3 my-4">
@@ -52,7 +52,7 @@
               <div class="row gutters">
                 <div class="col-xl-12 col-lg-12 col-md-12 col-sm-12 col-12">
                   <div class="text-right d-flex justify-content-end">
-                    <button type="button" id="submit" name="submit" class="btn btn-primary">Mettre à jour</button>
+                    <button @click="updateUser()" id="submit" name="submit" class="btn btn-primary">Mettre à jour</button>
                   </div>
                 </div>
               </div>
@@ -65,13 +65,39 @@
 </template>
 
 <script>
+import axios from 'axios'
+import { mapState } from 'vuex'
+
+
     export default {
         name: 'Profil',
         data() {
-            return {
-                user: 'Steven Oyer',
-                mail: 'contact@stevenoyer.fr'
-            }
+          return {
+            newPrenom: '',
+            newNom: '',
+            newEmail: '',
+            newAvatar: ''
+          }
+        },
+        computed: {
+          ...mapState(['connected', 'prenom', 'nom', 'email', 'avatar', 'userId'])
+        },
+        methods: {
+          updateUser() {
+            console.log(this.userId, this.newPrenom, this.newNom, this.newEmail)
+            axios.put('http://localhost:3200/api/auth/update', {
+              userId: this.userId,
+              nom: this.newNom,
+              prenom: this.newPrenom,
+              email: this.newEmail
+            })
+            .then(response => {
+              console.log(response)
+            })
+            .catch(error => {
+              console.log(error)
+            })  
+          }
         },
     }
 </script>

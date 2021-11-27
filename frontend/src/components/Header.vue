@@ -11,7 +11,7 @@
                 <div class="collapse navbar-collapse justify-content-end" id="navbarSupportedContent">
                     <ul class="navbar-nav ml-auto mb-2 mb-lg-0">
                         <li class="nav-item" v-if="connected">
-                            <router-link class="nav-link btn btn-info me-3" aria-current="page" to="/profile">Mon profil</router-link>
+                            <router-link class="nav-link btn btn-info me-3" aria-current="page" to="/profil">Mon profil</router-link>
                         </li>
                         <li class="nav-item" v-show="connected">
                             <a class="nav-link btn btn-danger" @click="disconnect()">Se déconnecter</a>
