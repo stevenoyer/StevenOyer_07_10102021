@@ -68,7 +68,7 @@ exports.newPost = (req, res, next) => {
     })
 }
 
-// Suppression d'une publication
+// Suppression d'une publication et ces commentaires
 exports.deletePostById = (req, res, next) => {
     db.query(`DELETE FROM posts WHERE id = ${req.params.id}`, (err, result) => {
         if (err)
@@ -76,7 +76,15 @@ exports.deletePostById = (req, res, next) => {
             console.log(err)
             return res.status(401).json({message: err})
         }
-        return res.status(200).json({message: 'La publication a bien été supprimée.'})
+
+        db.query(`DELETE FROM comments WHERE parent = ${req.params.id}`, (err, result) => {
+            if (err)
+            {
+                console.log(err)
+                return res.status(401).json({message: err})
+            }
+            return res.status(200).json({message: 'La publication et les commentaires ont bien été supprimé(e)(s).'})
+        })
     })
 }
 
@@ -100,6 +108,7 @@ exports.getAllComments = (req, res, next) => {
     FROM comments AS c
     LEFT JOIN users AS u ON u.id = c.created_by
     WHERE c.parent = ${req.params.id}
+    ORDER BY c.created DESC
     `, (err, result) => {
         if (err)
         {
@@ -129,9 +138,9 @@ exports.newComment = (req, res, next) => {
 // Suppression d'un commentaire sur une publication
 exports.deleteComment = (req, res, next) => {
     let parent = req.params.id
-    let commentId = req.body.commendId
+    let comment_id = req.params.id_comment
 
-    db.query(`DELETE FROM comments WHERE parent = ${parent} AND id = ${commentId}`, (err, result) => {
+    db.query(`DELETE FROM comments WHERE parent = ${parent} AND id = ${comment_id}`, (err, result) => {
         if (err)
         {
             console.log(err)

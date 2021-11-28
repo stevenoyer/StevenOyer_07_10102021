@@ -6,7 +6,7 @@
             </div>
             <div class="mb-3">
                 <label for="content-text" class="form-label"></label>
-                <textarea class="form-control" name="content" v-model="content" id="content-text" rows="4" placeholder="Quoi de neuf ?"></textarea>
+                <textarea class="form-control" name="content" v-model="content" id="content-text" rows="1" :placeholder="'Quoi de neuf, ' + prenom + ' ?'"></textarea>
             </div>
             <div class="mb-3 d-flex justify-content-between">
                 <div class="upload">

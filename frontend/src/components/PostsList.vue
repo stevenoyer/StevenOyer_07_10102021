@@ -3,7 +3,8 @@
         <div class="card mb-4" v-for="post in listPosts" :key="post">
             <div class="card-header d-flex align-items-center justify-content-between">
                 <div class="d-flex align-items-center">
-                    <img class="rounded-circle" src="https://i.imgur.com/aoKusnD.jpg" width="45">
+                    <img class="rounded-circle" v-if="post.avatar" :src="post.avatar" width="45">
+                    <img class="rounded-circle" v-else src="https://semainedelhistoire.com/wp-content/uploads/2021/04/avatar_placeholder.png" width="45">
                     <div class="ms-2">
                         <p class="author">{{ post.prenom }} {{ post.nom }}</p>
                         <p class="created">{{ formatDate(post.created) }}</p>
@@ -17,16 +18,16 @@
             <div class="card-body">
                 <p class="card-text">{{ post.content }}</p>
                 <div id="mode-edit" v-if="this.editMode.postId == post.id && this.editMode.edit == true">
-                    {{ this.editMode }}
                     <textarea class="mb-3 form-control" name="content" v-model="content" id="content-text" rows="4" placeholder="Quoi de neuf ?"></textarea>
                     <div class="text-end">
+                        <button @click="this.editMode.edit = false" class="btn btn-danger me-4">Annuler</button>
                         <button @click="updatePost(post.id)" class="btn btn-success">Mettre à jour</button>
                     </div>
                 </div>
             </div>
             <div class="card-footer text-end">
                 <button class="btn"><i class="fas fa-heart"></i></button>
-                <button class="btn"><i class="fas fa-comments"></i></button>
+                <router-link class="btn" :to="'/post/' + post.id"><i class="fas fa-comments"></i></router-link>
                 <button class="btn disabled"><i class="fas fa-share"></i></button>
             </div>
         </div>
@@ -63,13 +64,13 @@ export default {
                 return 'Il y a un instant'
             }else if (diffMinutes < 59 && diffDay == 0) {
                 return 'Il y a ' + diffMinutes + ' minutes'
-            }else if (diffMinutes >= 60 && diffDay == 0) {
+            }else if (diffMinutes == 60 && diffDay == 0) {
                 return 'Il y a 1 heure'
-            }else if (diffMinutes > 120 && diffDay == 0) {
+            }else if ((diffMinutes > 120 && diffMinutes < 1440) && (diffDay == 0 || diffDay == 1)) {
                 return 'Il y a ' + Math.round(diffMinutes / 60) + ' heures'
             }else if (diffMinutes >= 1440 && diffDay == 1) {
                 return 'Il y a un jour'
-            }else if (diffMinutes > 1440 && (diffDay > 1 && diffDay < 30)) {
+            }else if (diffMinutes > 1440 && (diffDay > 1 && (diffDay < 30 || diffDay < 31))) {
                 return 'Il y a ' + diffDay + ' jours'
             }else if (diffMinutes > 1440 && (diffDay > 30 && diffDay < 365)) {
                 return 'Il y a ' + Math.round(diffDay / 30) + ' mois'
@@ -155,45 +156,45 @@ export default {
         box-shadow: none;
     }
 
-    .card .card-footer button i {
+    .card .card-footer .btn i {
         font-size: 20px;
         color: #fff;
         transition: all 0.5s ease-in-out;
     }
 
-    .card .card-footer button i.fa-heart:hover {
+    .card .card-footer .btn i.fa-heart:hover {
         transition: all 0.5s ease-in-out;
         color: #dc3545;
     }
 
-    .card .card-footer button i.fa-comments:hover {
+    .card .card-footer .btn i.fa-comments:hover {
         transition: all 0.5s ease-in-out;
         color: #FFD7D7;
     }
 
-    .card .card-footer button i.fa-share:hover {
+    .card .card-footer .btn i.fa-share:hover {
         transition: all 0.5s ease-in-out;
         color: #0dcaf0;
     }
 
-    .card .card-header button i.fa-trash {
+    .card .card-header .btn i.fa-trash {
         transition: all 0.5s ease-in-out;
         color: #fff;
         font-size: 20px;
     }
 
-    .card .card-header button i.fa-trash:hover {
+    .card .card-header .btn i.fa-trash:hover {
         transition: all 0.5s ease-in-out;
         color: #dc3545;
     }
 
-    .card .card-header button i.fa-edit {
+    .card .card-header .btn i.fa-edit {
         transition: all 0.5s ease-in-out;
         color: #fff;
         font-size: 20px;
     }
 
-    .card .card-header button i.fa-edit:hover {
+    .card .card-header .btn i.fa-edit:hover {
         transition: all 0.5s ease-in-out;
         color: #0dcaf0;
     }

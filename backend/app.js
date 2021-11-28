@@ -13,6 +13,7 @@ const posts = require('./routes/posts')
 // App
 app.use(cors())
 app.use(express.json())
+app.disable('x-powered-by')
 app.use(helmet())
 app.use(xss())
 app.use('/images', express.static('images'))

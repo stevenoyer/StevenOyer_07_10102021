@@ -1,5 +1,5 @@
 <template>
-  <div class="container-fluid container-md mt-5">
+  <div v-if="isConnected()" class="container-fluid container-md mt-5">
     <div class="container">
       <div class="row gutters">
         <div class="col-xl-3 col-lg-3 col-md-12 col-sm-12 col-12">
@@ -8,10 +8,18 @@
               <div class="account-settings">
                 <div class="user-profile">
                   <div class="user-avatar">
-                    <img src="https://bootdey.com/img/Content/avatar/avatar7.png" alt="Maxwell Admin">
+                    <label>
+                      <div class="modify-profile">
+                        <p>Modifier</p>
+                      </div>
+                      <input @change="updateAvatar($event)" type="file" name="avatar" id="inputAvatar">
+                      <img v-if="avatar" :src="avatar">
+                      <img v-else src="https://semainedelhistoire.com/wp-content/uploads/2021/04/avatar_placeholder.png">
+                    </label>
                   </div>
                   <h5 class="user-name">{{ prenom }} {{ nom }}</h5>
                   <h6 class="user-email">{{ email }}</h6>
+                  <button @click="deleteAccount()" class="btn btn-danger mt-4">Supprimer mon compte</button>
                 </div>
               </div>
             </div>
@@ -27,25 +35,25 @@
                 <div class="col-xl-6 col-lg-6 col-md-6 col-sm-6 col-12 mt-2">
                   <div class="form-group">
                     <label for="prenom">Prénom</label>
-                    <input type="text" class="form-control" :v-model="newPrenom" id="prenom" placeholder="John" :value="prenom">
+                    <input type="text" class="form-control" @input="newPrenom = $event.target.value" id="prenom" placeholder="John" :value="prenom">
                   </div>
                 </div>
                 <div class="col-xl-6 col-lg-6 col-md-6 col-sm-6 col-12 mt-2">
                   <div class="form-group">
                     <label for="nom">Nom</label>
-                    <input type="text" class="form-control" :v-model="newNom" id="nom" placeholder="Doe" :value="nom">
+                    <input type="text" class="form-control" @input="newNom = $event.target.value" id="nom" placeholder="Doe" :value="nom">
                   </div>
                 </div>
                 <div class="col-xl-6 col-lg-6 col-md-6 col-sm-6 col-12 my-4">
                   <div class="form-group">
                     <label for="email">E-mail</label>
-                    <input type="email" class="form-control" :v-model="newEmail" id="email" placeholder="john.doe@example.com" :value="email">
+                    <input type="email" class="form-control" @input="newEmail = $event.target.value" id="email" placeholder="john.doe@example.com" :value="email">
                   </div>
                 </div>
                 <div class="col-xl-6 col-lg-6 col-md-6 col-sm-6 col-12 mb-3 my-4">
                   <div class="form-group">
-                    <label for="pass">Mot de passe</label>
-                    <input type="password" class="form-control" id="pass" placeholder="*************">
+                    <label for="pass">Nouveau mot de passe</label>
+                    <input type="password" v-model="newPass" class="form-control" id="pass" placeholder="*************">
                   </div>
                 </div>
               </div>
@@ -65,41 +73,119 @@
 </template>
 
 <script>
-import axios from 'axios'
-import { mapState } from 'vuex'
+  import axios from 'axios'
+  import { mapState } from 'vuex'
 
+  export default {
+      name: 'Profil',
+      data() {
+        return {
+          newPrenom: '',
+          newNom: '',
+          newEmail: '',
+          newPass: '',
+          newAvatar: ''
+        }
+      },
+      computed: {
+        ...mapState(['connected', 'prenom', 'nom', 'email', 'avatar', 'userId', 'token'])
+      },
+      methods: {
+        updateUser() {
+          let obj = {}
 
-    export default {
-        name: 'Profil',
-        data() {
-          return {
-            newPrenom: '',
-            newNom: '',
-            newEmail: '',
-            newAvatar: ''
+          let data = new FormData()
+
+          obj.userId = this.userId
+          data.append('userId', this.userId)
+
+          if (this.newPrenom != "") {
+            obj.prenom = this.newPrenom
+            data.append('prenom', this.newPrenom)
+          }else {
+            obj.prenom = this.prenom
+            data.append('prenom', this.prenom)
           }
-        },
-        computed: {
-          ...mapState(['connected', 'prenom', 'nom', 'email', 'avatar', 'userId'])
-        },
-        methods: {
-          updateUser() {
-            console.log(this.userId, this.newPrenom, this.newNom, this.newEmail)
-            axios.put('http://localhost:3200/api/auth/update', {
-              userId: this.userId,
-              nom: this.newNom,
-              prenom: this.newPrenom,
-              email: this.newEmail
+
+          if (this.newNom != "") {
+            obj.nom = this.newNom
+            data.append('nom', this.newNom)
+          }else {
+            obj.nom = this.nom
+            data.append('nom', this.nom)
+          }
+
+          if (this.newEmail != "") {
+            obj.email = this.newEmail
+            data.append('email', this.newEmail)
+          }else {
+            obj.email = this.email
+            data.append('email', this.email)
+          }
+
+          if (this.newPass != "") {
+            obj.pass = this.newPass
+            data.append('pass', this.newPass)
+          }
+
+          if (this.image != "") {
+            obj.image = this.image
+            data.append('image', this.image)
+          }
+
+          console.log(obj)
+
+          axios.put('http://localhost:3200/api/auth/update', data, {
+            headers: {
+              Authorization: `Bearer ${this.token}`,
+              'Content-Type': 'image/jpeg'
+            }
+          })
+          .then(response => {
+            console.log(response)
+            this.$store.dispatch('updateAccount', {
+                userId: response.data.userId,
+                prenom: response.data.prenom,
+                nom: response.data.nom,
+                email: response.data.email,
+                avatar: response.data.avatar
             })
-            .then(response => {
+            this.$router.go()
+          })
+          .catch(error => {
+            console.log(error)
+          })  
+        },
+        isConnected() {
+          if (!this.connected) {
+            this.$router.push('/')
+            return this.connected
+          }
+
+          return this.connected
+        },
+        deleteAccount() {
+          axios.delete(`http://localhost:3200/api/auth/delete/${this.userId}`, {
+            headers: {
+              Authorization: `Bearer ${this.token}`,
+              'Content-Type': 'application/json'
+            }
+          })
+          .then(response => {
               console.log(response)
-            })
-            .catch(error => {
+              this.$store.dispatch('disconnect')
+              this.$router.go()
+          })
+          .catch(error => {
               console.log(error)
-            })  
-          }
+          })
         },
-    }
+        updateAvatar(event) {
+          this.image = event.target.files[0]
+          this.avatar = URL.createObjectURL(this.image)
+        }
+      },
+  }
 </script>
 
 <style scoped>
@@ -164,4 +250,41 @@ import { mapState } from 'vuex'
         border: 0;
         margin-bottom: 1rem;
     }
+
+    #inputAvatar {
+      display: none;
+    }
+
+    .user-avatar label {
+      cursor: pointer;
+      position: relative;
+    }
+
+    .user-avatar label .modify-profile {
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      position: absolute;
+      top: 0;
+      left: 0;
+      right: 0;
+      bottom: 0;
+      background: rgba(0, 0, 0, 0.8);
+      width: 100%;
+      height: 100%;
+      border-radius: 50%;
+      color: #fff;
+      opacity: 0;
+      transition: all 0.5s ease-in-out;
+    }
+
+    .user-avatar label .modify-profile:hover {
+      opacity: 1;
+      transition: all 0.5s ease-in-out;
+    }
+
+    .user-avatar label .modify-profile p {
+      margin: 0;
+    }
+
 </style>

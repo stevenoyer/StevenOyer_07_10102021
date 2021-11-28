@@ -9,7 +9,8 @@ export default createStore({
     userId: '',
     prenom: '',
     nom: '',
-    admin: ''
+    admin: '',
+    avatar: ''
   },
   plugins: [createPersistedState()],
   mutations: {
@@ -24,7 +25,15 @@ export default createStore({
       state.email = val.email,
       state.prenom = val.prenom,
       state.nom = val.nom,
-      state.admin = val.admin
+      state.admin = val.admin,
+      state.avatar = val.avatar
+    },
+    UPDATE_INFO (state, val) {
+      state.userId = val.userId,
+      state.prenom = val.prenom,
+      state.email = val.email,
+      state.nom = val.nom,
+      state.avatar = val.avatar
     }
   },
   actions: {
@@ -34,6 +43,10 @@ export default createStore({
       commit('CHANGE_CONNECTED', userInfos.connected)
       commit('ADD_TOKEN', userInfos.token)
       commit('ADD_INFO', userInfos)
+    },
+    updateAccount: ({commit}, userInfos) => {
+      commit
+      commit('UPDATE_INFO', userInfos)
     },
     disconnect: ({commit}) => {
       commit('CHANGE_CONNECTED', false)

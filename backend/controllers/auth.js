@@ -81,6 +81,7 @@ exports.login = (req, res, next) => {
                         prenom: results[0].prenom,
                         email: results[0].email,
                         admin: results[0].admin,
+                        avatar: results[0].avatar,
                         token: jwt.sign({
                             userId: results[0].id
                         }, process.env.SECRET_TOKEN, {
@@ -109,7 +110,7 @@ exports.update = (req, res, next) => {
     console.log(userId, nom, prenom, email, mdp)
 
     // Modification des informations de l'utilisateur
-    db.query(`UPDATE users SET nom = "${nom}", prenom = "${prenom}", email = "${email}" WHERE id = "${userId}"`, (err, result) => {
+    db.query(`UPDATE users SET nom = "${nom}", prenom = "${prenom}", email = "${email}" WHERE id = ${userId}`, (err, result) => {
         if (err)
         {
             console.log(err)
@@ -121,9 +122,10 @@ exports.update = (req, res, next) => {
     // Modification de l'image avatar
     if (req.file)
     {
-        console.log(`${req.protocol}://${req.get('host')}/${req.file.path}`)
-        let avatar = req.protocol + '://' + req.get('host') + '/' + req.file.path
-        db.query(`UPDATE users SET avatar = "${avatar}" WHERE id = "${userId}"`, (err, result) => {
+        console.log(req.file)
+        console.log(`${req.protocol}://${req.get('host')}/images/${req.file.filename}_${req.file.originalname}`)
+        let avatar = req.protocol + '://' + req.get('host') + '/images/' + req.file.filename
+        db.query(`UPDATE users SET avatar = "${avatar}" WHERE id = ${userId}`, (err, result) => {
             if (err)
             {
                 console.log(err)
@@ -133,7 +135,7 @@ exports.update = (req, res, next) => {
         })
     }
 
-    if (mdp)
+    if (mdp && mdp != "")
     {
         bcrypt.hash(mdp, 10, (err, hash) => {
             if (err)
@@ -142,7 +144,7 @@ exports.update = (req, res, next) => {
                 return res.status(200).json({message: err})
             }
 
-            db.query(`UPDATE users SET pass = "${hash}" WHERE id = "${userId}"`, (err, result) => {
+            db.query(`UPDATE users SET pass = "${hash}" WHERE id = ${userId}`, (err, result) => {
                 if (err)
                 {
                     console.log(err)
@@ -154,7 +156,7 @@ exports.update = (req, res, next) => {
         })
     }
 
-    db.query(`SELECT * FROM users WHERE id = "${userId}"`, (err, result) => {
+    db.query(`SELECT * FROM users WHERE id = ${userId}`, (err, result) => {
         if (err)
         {
             console.log(err)

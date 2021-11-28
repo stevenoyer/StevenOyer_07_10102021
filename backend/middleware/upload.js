@@ -8,10 +8,11 @@ const MIMES_TYPES = {
 }
 
 const storage = multer.diskStorage({
-    destination: 'images',
+    destination: (req, file, callback) => {
+        callback(null, 'images')
+    },
     filename: (req, file, callback) => {
-        let name = req.body.userId
-        const extension = MIMES_TYPES[file.mimetype]
+        const name = req.body.userId + '_' + file.originalname
         callback(null, name)
     }
 })

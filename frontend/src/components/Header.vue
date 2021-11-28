@@ -46,6 +46,7 @@ export default {
     methods: {
         disconnect() {
             this.$store.dispatch('disconnect')
+            this.$router.push('/')
         }
     }
 }

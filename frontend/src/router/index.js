@@ -1,5 +1,6 @@
 import { createRouter, createWebHashHistory } from 'vue-router'
 import Home from '../views/Home.vue'
+import Post from '../views/Post.vue'
 
 const routes = [
   {
@@ -12,6 +13,11 @@ const routes = [
     name: 'Profil',
     component: () => import(/* webpackChunkName: "profil" */ '../views/Profil.vue')
   },
+  {
+    path: '/post/:id',
+    name: 'Post',
+    component: Post
+  }
 ]
 
 const router = createRouter({

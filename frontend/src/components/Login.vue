@@ -112,7 +112,8 @@
                             nom: response.data.nom,
                             email: response.data.email,
                             admin: response.data.admin,
-                            token: response.data.token
+                            token: response.data.token,
+                            avatar: response.data.avatar
                         })
                         this.$router.push('/')
                     }
