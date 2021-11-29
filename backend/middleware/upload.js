@@ -4,7 +4,8 @@ const MIMES_TYPES = {
     'image/jpg': 'jpg',
     'image/jpeg': 'jpg',
     'image/png': 'png',
-    'image/webp' : 'webp'
+    'image/webp' : 'webp',
+    'image/gif' : 'gif'
 }
 
 const storage = multer.diskStorage({

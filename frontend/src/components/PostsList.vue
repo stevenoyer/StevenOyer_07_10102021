@@ -1,35 +1,38 @@
 <template>
-    <div>
-        <div class="card mb-4" v-for="post in listPosts" :key="post">
-            <div class="card-header d-flex align-items-center justify-content-between">
-                <div class="d-flex align-items-center">
-                    <img class="rounded-circle" v-if="post.avatar" :src="post.avatar" width="45">
+    <div class="card mt-4">
+        <div class="card-header d-flex align-items-center justify-content-between">
+            <div class="d-flex align-items-center">
+                <router-link :to="'/user/' + created_by" class="d-flex align-items-center">
+                    <img class="rounded-circle" v-if="avatar" :src="avatar" width="45">
                     <img class="rounded-circle" v-else src="https://semainedelhistoire.com/wp-content/uploads/2021/04/avatar_placeholder.png" width="45">
                     <div class="ms-2">
-                        <p class="author">{{ post.prenom }} {{ post.nom }}</p>
-                        <p class="created">{{ formatDate(post.created) }}</p>
+                        <p class="author">{{ prenom }} {{ nom }}</p>
+                        <p class="created">{{ formatDate(created) }}</p>
                     </div>
-                </div>
-                <div class="d-flex align-items-center" v-if="post.created_by == this.userId || this.admin == true">
-                    <button @click="deletePost(post.id)" class="btn"><i class="fas fa-trash"></i></button>
-                    <button @click="updateEditMode(post.id)" class="btn"><i class="fas fa-edit"></i></button>
+                </router-link>
+            </div>
+            <div class="d-flex align-items-center" v-if="created_by == this.userId || this.admin == true">
+                <button @click="deletePost(id)" class="btn"><i class="fas fa-trash"></i></button>
+                <button @click="updateEditMode(id)" class="btn"><i class="fas fa-edit"></i></button>
+            </div>
+        </div>
+        <div class="card-body">
+            <p class="card-text" v-if="content">{{ content }}</p>
+            <div class="text-center mt-4" v-if="image">
+                <img class="image-post" :src="image">
+            </div>
+            <div id="mode-edit" v-if="this.editMode.postId == id && this.editMode.edit == true" class="mt-4">
+                <textarea class="mb-3 form-control" name="content" v-model="newContent" id="content-text" rows="4" placeholder="Quoi de neuf ?"></textarea>
+                <div class="text-end">
+                    <button @click="this.editMode.edit = false" class="btn btn-danger me-4">Annuler</button>
+                    <button @click="updatePost(id)" class="btn btn-success">Mettre à jour</button>
                 </div>
             </div>
-            <div class="card-body">
-                <p class="card-text">{{ post.content }}</p>
-                <div id="mode-edit" v-if="this.editMode.postId == post.id && this.editMode.edit == true">
-                    <textarea class="mb-3 form-control" name="content" v-model="content" id="content-text" rows="4" placeholder="Quoi de neuf ?"></textarea>
-                    <div class="text-end">
-                        <button @click="this.editMode.edit = false" class="btn btn-danger me-4">Annuler</button>
-                        <button @click="updatePost(post.id)" class="btn btn-success">Mettre à jour</button>
-                    </div>
-                </div>
-            </div>
-            <div class="card-footer text-end">
-                <button class="btn"><i class="fas fa-heart"></i></button>
-                <router-link class="btn" :to="'/post/' + post.id"><i class="fas fa-comments"></i></router-link>
-                <button class="btn disabled"><i class="fas fa-share"></i></button>
-            </div>
+        </div>
+        <div class="card-footer text-end">
+            <button :id="'button-like-' + id" @click="like(id)" class="btn" :class="{'liked' : like_post && like_user}"><i class="fas fa-heart"></i></button>
+            <router-link class="btn" :to="'/post/' + id"><i class="fas fa-comments"></i></router-link>
+            <button class="btn disabled"><i class="fas fa-share"></i></button>
         </div>
     </div>
 </template>
@@ -42,11 +45,23 @@ export default {
     name: 'ListPost',
     data: () => {
         return {
-            listPosts: [],
             editMode: {},
-            content: ''
+            newContent: '',
+            liked: ''
         }
     }, 
+    props: {
+        id: Number,
+        prenom: String,
+        nom: String,
+        created: [String, Date],
+        created_by: Number,
+        image: String,
+        like_post: Number,
+        like_user: Number,
+        content: String,
+        avatar: String
+    },
     computed: {
         ...mapState(['token', 'userId', 'admin']),
     },
@@ -81,10 +96,19 @@ export default {
             }
         },
         deletePost(id) {
-            axios.delete(`http://localhost:3200/api/posts/${id}`)
+            axios.delete(`http://localhost:3200/api/posts/${id}`, {
+                headers: {
+                    Authorization: `Bearer ${this.token}`,
+                    'Content-Type': 'application/json'
+                }
+            })
             .then(response => {
                 console.log(response)
-                this.$router.go()
+                if (this.$route.params.id) {
+                    this.$router.push('/')
+                }else {
+                    this.$router.go()
+                }
             })
             .catch(error => {
                 console.log(error)
@@ -95,12 +119,18 @@ export default {
                 edit: true,
                 postId: id
             }
-            this.content = ''
+            this.newContent = ''
         },
         updatePost(id) {
             console.log(this.content, id)
             axios.put(`http://localhost:3200/api/posts/${id}`, {
-                content: this.content
+                content: this.newContent
+            }, 
+            {
+                headers: {
+                    Authorization: `Bearer ${this.token}`,
+                    'Content-Type': 'application/json'
+                }
             })
             .then(response => {
                 console.log(response)
@@ -109,22 +139,43 @@ export default {
             .catch(error => {
                 console.log(error)
             })
+        },
+        like(id) {
+            axios.post(`http://localhost:3200/api/posts/${id}`, {userId: this.userId}, 
+            {
+                headers: {
+                    Authorization: `Bearer ${this.token}`,
+                    'Content-Type': 'application/json'
+                }
+            })
+            .then(response => {
+                console.log(response)
+                let button_like = document.querySelector('#button-like-' + id)
+                if (response.data.liked) {
+                   button_like.classList.add('liked')
+                }else {
+                    button_like.classList.remove('liked')
+                }
+            })
+            .catch(error => {
+                console.log(error)
+            })
         }
-    },
-    mounted() {
-        axios.get('http://localhost:3200/api/posts')
-        .then(response => {
-            console.log(response.data)
-            this.listPosts = response.data
-        })
-        .catch(error => {
-            console.log(error)
-        })
-    },
+    }
 }
 </script>
 
-<style scoped>
+<style>
+
+    a {
+        text-decoration: none;
+        color: #fff;
+    }
+
+    .list-posts {
+        width: 100%;
+    }  
+    
     p {
         margin: 0;
     }
@@ -152,8 +203,8 @@ export default {
         border-radius: 0 0 10px 10px;
     }
 
-    .card button:focus {
-        box-shadow: none;
+    button:focus, .btn:focus {
+        box-shadow: none !important;
     }
 
     .card .card-footer .btn i {
@@ -183,7 +234,14 @@ export default {
         font-size: 20px;
     }
 
-    .card .card-header .btn i.fa-trash:hover {
+    .delete-comment .btn i.fa-trash {
+        transition: all 0.5s ease-in-out;
+        color: #000;
+        font-size: 20px;
+    }
+
+    .card .card-header .btn i.fa-trash:hover,
+    .delete-comment .btn i.fa-trash:hover {
         transition: all 0.5s ease-in-out;
         color: #dc3545;
     }
@@ -199,11 +257,43 @@ export default {
         color: #0dcaf0;
     }
 
-    .created {
+    .created,
+    .info-mail {
         font-size: 11px;
     }
 
     .author {
         font-weight: bold;
+    }
+
+    .delete-comment {
+        position: absolute;
+        right: 0;
+        top: 0;
+    }
+
+    .image-post {
+        max-width: 100%;
+        border-radius: 10px;
+    }
+
+    .liked i.fa-heart {
+        transition: all 0.5s ease-in-out;
+        color: #dc3545 !important;
+        animation: liked 0.3s ease-in-out;
+    }
+
+    @keyframes liked {
+        0% {
+            transform: scale(1);
+        }
+
+        50% {
+            transform: scale(1.5);
+        }
+
+        100% {
+            transform: scale(1);
+        }
     }
 </style>

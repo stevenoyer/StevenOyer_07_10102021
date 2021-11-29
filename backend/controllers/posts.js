@@ -3,7 +3,6 @@ const env = require('dotenv').config()
 
 // Récupération de toutes les publications
 exports.getPosts = (req, res, next) => {
-    console.log('test')
     db.query(`
         SELECT p.*, u.id AS userId, u.nom AS nom, u.prenom AS prenom, u.avatar AS avatar, u.email AS email, u.admin AS admin
         FROM posts AS p
@@ -25,8 +24,7 @@ exports.getPostById = (req, res, next) => {
         SELECT p.*, u.id AS userId, u.nom AS nom, u.prenom AS prenom, u.avatar AS avatar, u.email AS email, u.admin AS admin
         FROM posts AS p
         LEFT JOIN users AS u ON p.created_by = u.id
-        WHERE p.id = ${req.params.id}`
-    , (err, result) => {
+        WHERE p.id = ?`, [req.params.id], (err, result) => {
         if (err)
         {
             console.log(err)
@@ -39,11 +37,11 @@ exports.getPostById = (req, res, next) => {
 // Récupération des publications d'un utilisateur
 exports.getUserPosts = (req, res, next) => {
     db.query(`
-        SELECT p.*, u.id AS userId, u.nom AS nom, u.prenom AS prenom, u.avatar AS avatar, u.email AS email, u.admin AS admin
+        SELECT p.*, u.id AS userId, u.nom AS nom, u.prenom AS prenom, u.avatar AS avatar, u.email AS email, u.admin AS admin, l.id_user AS like_user, l.id_post AS like_post
         FROM posts AS p
         LEFT JOIN users AS u ON p.created_by = u.id
-        WHERE p.created_by = ${req.params.id}`
-    , (err, result) => {
+        LEFT JOIN likes AS l ON l.id_post = p.id AND l.id_user = u.id
+        WHERE p.created_by = ?`, [req.params.id], (err, result) => {
         if (err)
         {
             console.log(err)
@@ -57,8 +55,23 @@ exports.getUserPosts = (req, res, next) => {
 exports.newPost = (req, res, next) => {
     let content = req.body.content
     let created_by = req.body.userId
+    let image = req.body.image
 
-    db.query(`INSERT INTO posts (content, created_by) VALUES("${content}", "${created_by}")`, (err, result) => {
+    if (req.file) {
+        image = req.protocol + '://' + req.get('host') + '/images/' + req.file.filename
+    }else {
+        image = null
+    }
+
+    console.log(content, created_by, image)
+
+    let obj = {
+        content: content,
+        image: image,
+        created_by: created_by
+    }
+
+    db.query(`INSERT INTO posts SET ?`, obj, (err, result) => {
         if (err)
         {
             console.log(err)
@@ -70,20 +83,22 @@ exports.newPost = (req, res, next) => {
 
 // Suppression d'une publication et ces commentaires
 exports.deletePostById = (req, res, next) => {
-    db.query(`DELETE FROM posts WHERE id = ${req.params.id}`, (err, result) => {
+    db.query(`DELETE FROM posts WHERE id = ?`, [req.params.id], (err, result) => {
         if (err)
         {
             console.log(err)
             return res.status(401).json({message: err})
         }
 
-        db.query(`DELETE FROM comments WHERE parent = ${req.params.id}`, (err, result) => {
+        db.query(`DELETE FROM likes WHERE id_post = ?`, [req.params.id])
+
+        db.query(`DELETE FROM comments WHERE parent = ?`, [req.params.id], (err, result) => {
             if (err)
             {
                 console.log(err)
                 return res.status(401).json({message: err})
             }
-            return res.status(200).json({message: 'La publication et les commentaires ont bien été supprimé(e)(s).'})
+            return res.status(200).json({message: 'La publication et les likes et les commentaires ont bien été supprimé(e)(s).'})
         })
     })
 }
@@ -91,7 +106,7 @@ exports.deletePostById = (req, res, next) => {
 // Modification d'une publication
 exports.modifyPostById = (req, res, next) => {
     let content = req.body.content
-    db.query(`UPDATE posts SET content = "${content}" WHERE id = ${req.params.id}`, (err, result) => {
+    db.query(`UPDATE posts SET content = ? WHERE id = ?`, [content, req.params.id], (err, result) => {
         if (err)
         {
             console.log(err)
@@ -101,15 +116,52 @@ exports.modifyPostById = (req, res, next) => {
     })
 }
 
+// Like d'une publication
+exports.likePost = (req, res, next) => {
+    let postId = req.params.id
+    let userId = req.body.userId
+
+    db.query(`SELECT * FROM likes WHERE id_user = ? AND id_post = ?`, [userId, postId], (err, result) => {
+        if (err)
+        {
+            console.log(err)
+            return res.status(401).json({message: err})
+        }
+
+        if (result.length > 0)
+        {
+            db.query(`DELETE FROM likes WHERE id_user = ? AND id_post = ?`, [userId, postId])
+            return res.status(200).json({message: 'Like supprimé.', liked: 0})
+        }
+        else 
+        {
+            let obj = {
+                id_user: userId,
+                id_post: postId
+            }
+
+            db.query(`INSERT INTO likes SET ?`, obj, (err, result) => {
+                if (err)
+                {
+                    console.log(err)
+                    return res.status(401).json({message: err})
+                }
+                return res.status(200).json({message: 'Publication liké !', liked: 1})
+            })
+        }
+
+    })
+
+}
+
 // Récupération de tous les commentaires d'une publication
 exports.getAllComments = (req, res, next) => {
     db.query(`
     SELECT c.*, u.id AS userId, u.nom AS nom, u.prenom AS prenom, u.avatar AS avatar, u.email AS email, u.admin AS admin
     FROM comments AS c
     LEFT JOIN users AS u ON u.id = c.created_by
-    WHERE c.parent = ${req.params.id}
-    ORDER BY c.created DESC
-    `, (err, result) => {
+    WHERE c.parent = ?
+    ORDER BY c.created DESC`, [req.params.id], (err, result) => {
         if (err)
         {
             console.log(err)
@@ -125,7 +177,13 @@ exports.newComment = (req, res, next) => {
     let created_by = req.body.userId
     let parent = req.params.id
 
-    db.query(`INSERT INTO comments (content, parent, created_by) VALUES("${content}", "${parent}", "${created_by}")`, (err, result) => {
+    let obj = {
+        content: content,
+        parent: parent,
+        created_by: created_by
+    }
+
+    db.query(`INSERT INTO comments SET ?`, obj, (err, result) => {
         if (err)
         {
             console.log(err)
@@ -140,7 +198,7 @@ exports.deleteComment = (req, res, next) => {
     let parent = req.params.id
     let comment_id = req.params.id_comment
 
-    db.query(`DELETE FROM comments WHERE parent = ${parent} AND id = ${comment_id}`, (err, result) => {
+    db.query(`DELETE FROM comments WHERE parent = ? AND id = ?`, [parent, comment_id], (err, result) => {
         if (err)
         {
             console.log(err)

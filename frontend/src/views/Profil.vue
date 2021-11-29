@@ -92,48 +92,35 @@
       },
       methods: {
         updateUser() {
-          let obj = {}
 
           let data = new FormData()
-
-          obj.userId = this.userId
           data.append('userId', this.userId)
 
           if (this.newPrenom != "") {
-            obj.prenom = this.newPrenom
             data.append('prenom', this.newPrenom)
           }else {
-            obj.prenom = this.prenom
             data.append('prenom', this.prenom)
           }
 
           if (this.newNom != "") {
-            obj.nom = this.newNom
             data.append('nom', this.newNom)
           }else {
-            obj.nom = this.nom
             data.append('nom', this.nom)
           }
 
           if (this.newEmail != "") {
-            obj.email = this.newEmail
             data.append('email', this.newEmail)
           }else {
-            obj.email = this.email
             data.append('email', this.email)
           }
 
           if (this.newPass != "") {
-            obj.pass = this.newPass
             data.append('pass', this.newPass)
           }
 
           if (this.image != "") {
-            obj.image = this.image
             data.append('image', this.image)
           }
-
-          console.log(obj)
 
           axios.put('http://localhost:3200/api/auth/update', data, {
             headers: {

@@ -1,39 +1,22 @@
 <template>
-    <div class="containerfluid container-md">
+    <div class="container-fluid container-md">
         <div id="post-section">
             <div class="list-posts mt-5">
-                <div class="card mb-4">
-                    <div class="card-header d-flex align-items-center justify-content-between">
-                        <div class="d-flex align-items-center">
-                            <img class="rounded-circle" v-if="this.post.avatar" :src="this.post.avatar" width="45">
-                            <img class="rounded-circle" v-else src="https://semainedelhistoire.com/wp-content/uploads/2021/04/avatar_placeholder.png" width="45">
-                            <div class="ms-2">
-                                <p class="author">{{ this.post.prenom }} {{ this.post.nom }}</p>
-                                <p class="created">{{ formatDate(this.post.created) }}</p>
-                            </div>
-                        </div>
-                        <div class="d-flex align-items-center" v-if="this.post.created_by == this.userId || this.admin == true">
-                            <button @click="deletePost(this.post.id)" class="btn"><i class="fas fa-trash"></i></button>
-                            <button @click="updateEditMode(this.post.id)" class="btn"><i class="fas fa-edit"></i></button>
-                        </div>
-                    </div>
-                    <div class="card-body">
-                        <p class="card-text">{{ post.content }}</p>
-                        <div id="mode-edit" v-if="this.editMode.postId == post.id && this.editMode.edit == true">
-                            <textarea class="mb-3 form-control" name="content" v-model="content" id="content-text" rows="4" placeholder="Quoi de neuf ?"></textarea>
-                            <div class="text-end">
-                                <button @click="this.editMode.edit = false" class="btn btn-danger me-4">Annuler</button>
-                                <button @click="updatePost(this.post.id)" class="btn btn-success">Mettre à jour</button>
-                            </div>
-                        </div>
-                    </div>
-                    <div class="card-footer text-end">
-                        <button class="btn"><i class="fas fa-heart"></i></button>
-                        <button class="btn disabled"><i class="fas fa-share"></i></button>
-                    </div>
-                </div>
+                
+                <ListPost v-if="this.post" :key="this.post.id"
+                    :id="this.post.id" 
+                    :prenom="this.post.prenom"
+                    :nom="this.post.nom"
+                    :created="this.post.created"
+                    :created_by="this.post.created_by"
+                    :image="this.post.image"
+                    :like_post="this.post.like_post"
+                    :like_user="this.post.like_user"
+                    :content="this.post.content"
+                    :avatar="this.post.avatar"
+                />
 
-                <div class="post-comment">
+                <div class="post-comment mt-4">
                     <label>Poster un commentaire</label>
                     <div class="d-flex align-items-center">
                         <input type="text" name="comment" v-model="comment" class="form-control" placeholder="Exprimez-vous">
@@ -44,11 +27,11 @@
                 <div class="mt-4">
                     <div v-for="comment in this.comments" :key="comment">
                         <div class="card mb-4">
-                            <div class="delete-comment">
+                            <div class="delete-comment" v-if="created_by == this.userId || this.admin == true">
                                 <button @click="deleteComment(comment.id)" class="btn"><i class="fas fa-trash"></i></button>
                             </div>
                             <div class="row card-body d-flex align-items-center justify-content-between">
-                                <div class="d-flex align-items-center col-3">
+                                <div class="d-flex align-items-center col-12 col-md-6 col-lg-3">
                                     <img class="rounded-circle" v-if="comment.avatar" :src="comment.avatar" width="45">
                                     <img class="rounded-circle" v-else src="https://semainedelhistoire.com/wp-content/uploads/2021/04/avatar_placeholder.png" width="45">
                                     <div class="ms-2">
@@ -56,7 +39,7 @@
                                         <p class="created">{{ formatDate(comment.created) }}</p>
                                     </div>
                                 </div>
-                                <div class="col-9">
+                                <div class="col-12 col-md-6 col-lg-9">
                                     <p>{{ comment.content }}</p>
                                 </div>
                             </div>
@@ -72,9 +55,13 @@
 
     import { mapState } from 'vuex';
     const axios = require('axios').default
+    import ListPost from '../components/PostsList.vue'
 
     export default {
         name: 'Post',
+        components: {
+            ListPost
+        },
         data: () => {
             return {
                 post: {},
@@ -95,68 +82,14 @@
             ...mapState(['token', 'userId', 'admin']),
         },
         methods: {
-            formatDate(date) {
-                let newDate = new Date(date)
-                let today = new Date()
-
-                let diff = today.getTime() - newDate.getTime()
-                let diffDay = Math.round(diff / (1000 * 3600 * 24))
-                let diffMinutes = Math.round(diff / (1000 * 60))
-                let diffSecondes = Math.round(diff / 1000)
-                
-                if (diffSecondes < 120 && diffDay == 0) {
-                    return 'Il y a un instant'
-                }else if (diffMinutes < 59 && diffDay == 0) {
-                    return 'Il y a ' + diffMinutes + ' minutes'
-                }else if (diffMinutes == 60 && diffDay == 0) {
-                    return 'Il y a 1 heure'
-                }else if ((diffMinutes > 120 && diffMinutes < 1440) && (diffDay == 0 || diffDay == 1)) {
-                    return 'Il y a ' + Math.round(diffMinutes / 60) + ' heures'
-                }else if (diffMinutes >= 1440 && diffDay == 1) {
-                    return 'Il y a un jour'
-                }else if (diffMinutes > 1440 && (diffDay > 1 && (diffDay < 30 || diffDay < 31))) {
-                    return 'Il y a ' + diffDay + ' jours'
-                }else if (diffMinutes > 1440 && (diffDay > 30 && diffDay < 365)) {
-                    return 'Il y a ' + Math.round(diffDay / 30) + ' mois'
-                }else if (diffDay >= 365 && diffDay < 730) {
-                    return 'Il y a plus d\'un an'
-                }else if (diffDay >= 730) {
-                    return 'Il y a ' + Math.round(diffDay / 365) + ' ans'
-                }
-            },
-            deletePost(id) {
-                axios.delete(`http://localhost:3200/api/posts/${id}`)
-                .then(response => {
-                    console.log(response)
-                    this.$router.push('/')
-                })
-                .catch(error => {
-                    console.log(error)
-                })
-            },
             deleteComment(comment_id) {
                 console.log(comment_id, this.token)
 
-                axios.delete(`http://localhost:3200/api/posts/${this.post.id}/comments/${comment_id}`)
-                .then(response => {
-                    console.log(response)
-                    this.$router.go()
-                })
-                .catch(error => {
-                    console.log(error)
-                })
-            },
-            updateEditMode(id) {
-                this.editMode = {
-                    edit: true,
-                    postId: id
-                }
-                this.content = ''
-            },
-            updatePost(id) {
-                console.log(this.content, id)
-                axios.put(`http://localhost:3200/api/posts/${id}`, {
-                    content: this.content
+                axios.delete(`http://localhost:3200/api/posts/${this.post.id}/comments/${comment_id}`, {
+                    headers: {
+                        Authorization: `Bearer ${this.token}`,
+                        'Content-Type': 'application/json'
+                    }
                 })
                 .then(response => {
                     console.log(response)
@@ -186,10 +119,44 @@
                 .catch(error => {
                     console.log(error)
                 })
+            },
+            formatDate(date) {
+                let newDate = new Date(date)
+                let today = new Date()
+
+                let diff = today.getTime() - newDate.getTime()
+                let diffDay = Math.round(diff / (1000 * 3600 * 24))
+                let diffMinutes = Math.round(diff / (1000 * 60))
+                let diffSecondes = Math.round(diff / 1000)
+                
+                if (diffSecondes < 120 && diffDay == 0) {
+                    return 'Il y a un instant'
+                }else if (diffMinutes < 59 && diffDay == 0) {
+                    return 'Il y a ' + diffMinutes + ' minutes'
+                }else if (diffMinutes == 60 && diffDay == 0) {
+                    return 'Il y a 1 heure'
+                }else if ((diffMinutes > 120 && diffMinutes < 1440) && (diffDay == 0 || diffDay == 1)) {
+                    return 'Il y a ' + Math.round(diffMinutes / 60) + ' heures'
+                }else if (diffMinutes >= 1440 && diffDay == 1) {
+                    return 'Il y a un jour'
+                }else if (diffMinutes > 1440 && (diffDay > 1 && (diffDay < 30 || diffDay < 31))) {
+                    return 'Il y a ' + diffDay + ' jours'
+                }else if (diffMinutes > 1440 && (diffDay > 30 && diffDay < 365)) {
+                    return 'Il y a ' + Math.round(diffDay / 30) + ' mois'
+                }else if (diffDay >= 365 && diffDay < 730) {
+                    return 'Il y a plus d\'un an'
+                }else if (diffDay >= 730) {
+                    return 'Il y a ' + Math.round(diffDay / 365) + ' ans'
+                }
             }
         },
         mounted() {
-            axios.get(`http://localhost:3200/api/posts/${this.$route.params.id}`)
+            axios.get(`http://localhost:3200/api/posts/${this.$route.params.id}`, {
+                headers: {
+                    Authorization: `Bearer ${this.token}`,
+                    'Content-Type': 'application/json'
+                }
+            })
             .then(response => {
                 this.post = response.data[0]
                 console.log(response)
@@ -199,7 +166,12 @@
                 console.log(error)
             })
 
-            axios.get(`http://localhost:3200/api/posts/${this.$route.params.id}/comments`)
+            axios.get(`http://localhost:3200/api/posts/${this.$route.params.id}/comments`, {
+                headers: {
+                    Authorization: `Bearer ${this.token}`,
+                    'Content-Type': 'application/json'
+                }
+            })
             .then(response => {
                 this.comments = response.data
                 console.log(this.comments)
@@ -212,11 +184,12 @@
 </script>
 
 <style scoped>
+
     #post-section {
         display: flex;
         align-items: center;
         flex-direction: column;
-        width: 60%;
+        width: 100%;
         margin: 0 auto;
     }
 
@@ -317,5 +290,16 @@
         position: absolute;
         right: 0;
         top: 0;
+    }
+
+    .image-post {
+        max-width: 100%;
+        border-radius: 10px;
+    }
+
+    @media screen and (min-width: 640px) {
+        #post-section {
+            width: 60%;
+        }
     }
 </style>

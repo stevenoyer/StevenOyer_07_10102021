@@ -10,17 +10,30 @@
             </div>
             <div class="mb-3 d-flex justify-content-between">
                 <div class="upload">
-                    <!-- <label class="btn btn-groupomania" for="image">
+                    <label class="btn btn-groupomania" for="image">
                         Impoter une image
-                        <input type="file" name="image" id="image" class="btn btn-groupomania" value="joindre une image">
-                    </label> -->
+                        <input @change="uploadImage($event)" type="file" name="image" id="image" class="btn btn-groupomania">
+                    </label>
                 </div>
                 <button @click="post()" type="submit" class="btn btn-groupomania" :class="{'disabled' : !validateFields}">Publier</button>
             </div>
         </div>
 
         <div class="list-posts mt-5">
-            <ListPost />
+            <div v-for="post in listPosts" :key="post">
+                <ListPost 
+                    :id="post.id" 
+                    :prenom="post.prenom"
+                    :nom="post.nom"
+                    :created="post.created"
+                    :created_by="post.created_by"
+                    :image="post.image"
+                    :like_post="post.like_post"
+                    :like_user="post.like_user"
+                    :content="post.content"
+                    :avatar="post.avatar"
+                />
+            </div>
         </div>
     </div>
 
@@ -36,7 +49,10 @@ export default {
     name: 'Posts',
     data: () => {
         return {
-            content: ''
+            listPosts: [],
+            content: '',
+            image: '',
+            imageUrl: ''
         }
     },
     components: {
@@ -45,7 +61,7 @@ export default {
     computed: {
         validateFields: function() {
             console.log(this.content)
-            if (this.content != "") {
+            if (this.content != "" || this.image != "") {
                 return true
             }else {
                 return false
@@ -54,12 +70,21 @@ export default {
         ...mapState(['connected', 'token', 'prenom', 'userId'])
     },
     methods: {
-        post: function() {
-            console.log(this.userId, this.content)
-            axios.post('http://localhost:3200/api/posts', {
-                content: this.content,
-                userId: this.userId
-            }, {headers: {Authorization: 'Bearer ' + this.token}})
+        post() {
+            let data = new FormData()
+
+            data.append('content', this.content)
+            data.append('userId', this.userId)
+            data.append('image', this.image)
+
+            console.log(this.userId, this.content, this.image)
+            axios.post('http://localhost:3200/api/posts', data, 
+            {
+                headers: {
+                    Authorization: `Bearer ${this.token}`,
+                    'Content-Type': 'image/jpeg'
+                }
+            })
             .then(response => {
                 console.log(response)
                 console.log(this.userId)
@@ -68,7 +93,27 @@ export default {
             .catch(error => {
                 console.log(error)
             })
+        },
+        uploadImage(event) {
+          this.image = event.target.files[0]
+          this.imageUrl = URL.createObjectURL(this.image)
+          console.log(this.image)
         }
+    },
+    mounted() {
+        axios.get('http://localhost:3200/api/posts', {
+            headers: {
+                Authorization: `Bearer ${this.token}`,
+                'Content-Type': 'application/json'
+            }
+        })
+        .then(response => {
+            console.log(response.data)
+            this.listPosts = response.data
+        })
+        .catch(error => {
+            console.log(error)
+        })
     }
 }
 </script>
@@ -78,7 +123,7 @@ export default {
         display: flex;
         align-items: center;
         flex-direction: column;
-        width: 60%;
+        width: 100%;
         margin: 0 auto;
     }
 
@@ -111,4 +156,9 @@ export default {
         width: 100%;
     }
 
+    @media screen and (min-width: 640px) {
+        #posts-section {
+            width: 60%;
+        }
+    }
 </style>
