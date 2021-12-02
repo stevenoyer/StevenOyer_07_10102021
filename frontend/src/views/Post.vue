@@ -27,7 +27,7 @@
                 <div class="mt-4">
                     <div v-for="comment in this.comments" :key="comment">
                         <div class="card mb-4">
-                            <div class="delete-comment" v-if="created_by == this.userId || this.admin == true">
+                            <div class="delete-comment" v-if="comment.created_by == this.userId || this.admin == true">
                                 <button @click="deleteComment(comment.id)" class="btn"><i class="fas fa-trash"></i></button>
                             </div>
                             <div class="row card-body d-flex align-items-center justify-content-between">
@@ -67,7 +67,8 @@
                 post: {},
                 editMode: {},
                 comment: '',
-                comments: ''
+                comments: '',
+                isLiked: false
             }
         }, 
         computed: {
@@ -80,6 +81,17 @@
                 }
             },
             ...mapState(['token', 'userId', 'admin']),
+            likedPost() {
+                let likesArray = this.likePosts
+                likesArray.forEach(like => {
+                    if (like.like_post == this.post.id && like.like_user == this.userId)
+                    {
+                        this.isLiked = true
+                    }
+                })
+                console.log('isLiked', this.isLiked)
+                return this.isLiked
+            }
         },
         methods: {
             deleteComment(comment_id) {
@@ -175,6 +187,20 @@
             .then(response => {
                 this.comments = response.data
                 console.log(this.comments)
+            })
+            .catch(error => {
+                console.log(error)
+            })
+
+            axios.get(`http://localhost:3200/api/posts/likes/${this.userId}`, {
+                headers: {
+                    Authorization: `Bearer ${this.token}`,
+                    'Content-Type': 'application/json'
+                }
+            })
+            .then(response => {
+                this.likePosts = response.data
+                console.log(this.likePosts)
             })
             .catch(error => {
                 console.log(error)

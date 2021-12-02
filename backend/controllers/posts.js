@@ -41,7 +41,8 @@ exports.getUserPosts = (req, res, next) => {
         FROM posts AS p
         LEFT JOIN users AS u ON p.created_by = u.id
         LEFT JOIN likes AS l ON l.id_post = p.id AND l.id_user = u.id
-        WHERE p.created_by = ?`, [req.params.id], (err, result) => {
+        WHERE p.created_by = ?
+        ORDER BY p.created DESC`, [req.params.id], (err, result) => {
         if (err)
         {
             console.log(err)
@@ -152,6 +153,21 @@ exports.likePost = (req, res, next) => {
 
     })
 
+}
+
+exports.getLikesByUser = (req, res, next) => {
+    db.query(`
+        SELECT u.id, l.id_user AS like_user, l.id_post AS like_post
+        FROM users AS u
+        LEFT JOIN likes AS l ON l.id_user = u.id
+        WHERE u.id = ?`, [req.params.id], (err, result) => {
+        if (err)
+        {
+            console.log(err)
+            return res.status(401).json({message: err})
+        }
+        return res.status(200).json(result)
+    })
 }
 
 // Récupération de tous les commentaires d'une publication

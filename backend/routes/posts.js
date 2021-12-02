@@ -15,6 +15,8 @@ router.delete('/:id', auth, postsCtrl.deletePostById)
 
 router.post('/:id', auth, postsCtrl.likePost)
 
+router.get('/likes/:id', auth, postsCtrl.getLikesByUser)
+
 router.get('/user:id/posts', auth, postsCtrl.getUserPosts)
 
 // Commentaires

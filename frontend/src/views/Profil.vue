@@ -69,22 +69,46 @@
         </div>
       </div>
     </div>
+    <div id="posts-section">
+      <div class="list-posts mt-5">
+        <h4>Vos publications</h4>
+        <div v-for="post in listPostsUser" :key="post">
+          <ListPost 
+            :id="post.id" 
+            :prenom="post.prenom"
+            :nom="post.nom"
+            :created="post.created"
+            :created_by="post.created_by"
+            :image="post.image"
+            :like_post="post.like_post"
+            :like_user="post.like_user"
+            :content="post.content"
+            :avatar="post.avatar"
+          />
+        </div>
+      </div>
+    </div>
   </div>
 </template>
 
 <script>
   import axios from 'axios'
   import { mapState } from 'vuex'
+  import ListPost from '../components/PostsList.vue'
 
   export default {
       name: 'Profil',
+      components: {
+        ListPost
+      },
       data() {
         return {
           newPrenom: '',
           newNom: '',
           newEmail: '',
           newPass: '',
-          newAvatar: ''
+          newAvatar: '', 
+          listPostsUser: []
         }
       },
       computed: {
@@ -172,10 +196,33 @@
           this.avatar = URL.createObjectURL(this.image)
         }
       },
+      mounted() {
+        axios.get(`http://localhost:3200/api/posts/user${this.userId}/posts`, {
+            headers: {
+                Authorization: `Bearer ${this.token}`,
+                'Content-Type': 'application/json'
+            }
+        })
+        .then(response => {
+            console.log(response)
+            this.listPostsUser = response.data
+        })
+        .catch(error => {
+            console.log(error)
+        })
+      },
   }
 </script>
 
 <style scoped>
+    #posts-section {
+        display: flex;
+        align-items: center;
+        flex-direction: column;
+        width: 100%;
+        margin: 0 auto;
+    }
+
     .account-settings .user-profile {
         margin: 0 0 1rem 0;
         padding-bottom: 1rem;
@@ -272,6 +319,12 @@
 
     .user-avatar label .modify-profile p {
       margin: 0;
+    }
+
+    @media screen and (min-width: 640px) {
+        #posts-section {
+            width: 60%;
+        }
     }
 
 </style>

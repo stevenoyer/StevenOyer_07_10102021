@@ -30,7 +30,7 @@
             </div>
         </div>
         <div class="card-footer text-end">
-            <button :id="'button-like-' + id" @click="like(id)" class="btn" :class="{'liked' : like_post && like_user}"><i class="fas fa-heart"></i></button>
+            <button :id="'button-like-' + id" @click="like(id)" class="btn" :class="{'liked' : isLiked}"><i class="fas fa-heart"></i></button>
             <router-link class="btn" :to="'/post/' + id"><i class="fas fa-comments"></i></router-link>
             <button class="btn disabled"><i class="fas fa-share"></i></button>
         </div>
@@ -60,7 +60,8 @@ export default {
         like_post: Number,
         like_user: Number,
         content: String,
-        avatar: String
+        avatar: String,
+        isLiked: Boolean
     },
     computed: {
         ...mapState(['token', 'userId', 'admin']),
@@ -79,7 +80,7 @@ export default {
                 return 'Il y a un instant'
             }else if (diffMinutes < 59 && diffDay == 0) {
                 return 'Il y a ' + diffMinutes + ' minutes'
-            }else if (diffMinutes == 60 && diffDay == 0) {
+            }else if (diffMinutes >= 60 && diffDay == 0) {
                 return 'Il y a 1 heure'
             }else if ((diffMinutes > 120 && diffMinutes < 1440) && (diffDay == 0 || diffDay == 1)) {
                 return 'Il y a ' + Math.round(diffMinutes / 60) + ' heures'
