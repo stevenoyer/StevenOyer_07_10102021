@@ -24,7 +24,7 @@ app.use('/api/posts', posts)
 
 
 // Server
-app.listen(process.env.PORT || '3000', () => {
-    let port = process.env.PORT ? process.env.PORT : 3000;
+app.listen(process.env.PORT || '3200', () => {
+    let port = process.env.PORT ? process.env.PORT : 3200;
     console.log(`Le serveur est démarré. Port : ${port}`)
 })
