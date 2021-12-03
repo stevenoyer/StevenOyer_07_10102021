@@ -28,8 +28,6 @@
                     :created="post.created"
                     :created_by="post.created_by"
                     :image="post.image"
-                    :like_post="post.like_post"
-                    :like_user="post.like_user"
                     :content="post.content"
                     :avatar="post.avatar"
                 />
@@ -52,7 +50,8 @@ export default {
             listPosts: [],
             content: '',
             image: '',
-            imageUrl: ''
+            imageUrl: '',
+            likePosts: []
         }
     },
     components: {
@@ -101,6 +100,19 @@ export default {
         }
     },
     mounted() {
+        axios.get(`http://localhost:3200/api/posts/likes/${this.userId}`, {
+            headers: {
+                Authorization: `Bearer ${this.token}`,
+                'Content-Type': 'application/json'
+            }
+        })
+        .then(response => {
+            this.likePosts = response.data
+        })
+        .catch(error => {
+            console.log(error)
+        })
+
         axios.get('http://localhost:3200/api/posts', {
             headers: {
                 Authorization: `Bearer ${this.token}`,
@@ -110,10 +122,11 @@ export default {
         .then(response => {
             console.log(response.data)
             this.listPosts = response.data
+            console.log('likes', this.likePosts, 'userid', this.userId)
         })
         .catch(error => {
             console.log(error)
-        })
+        })        
     }
 }
 </script>

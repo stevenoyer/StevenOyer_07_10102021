@@ -155,6 +155,7 @@ exports.likePost = (req, res, next) => {
 
 }
 
+// Récupère les likes d'un utilisateur
 exports.getLikesByUser = (req, res, next) => {
     db.query(`
         SELECT u.id, l.id_user AS like_user, l.id_post AS like_post

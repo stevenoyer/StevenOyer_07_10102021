@@ -68,7 +68,6 @@
                 editMode: {},
                 comment: '',
                 comments: '',
-                isLiked: false
             }
         }, 
         computed: {
@@ -187,20 +186,6 @@
             .then(response => {
                 this.comments = response.data
                 console.log(this.comments)
-            })
-            .catch(error => {
-                console.log(error)
-            })
-
-            axios.get(`http://localhost:3200/api/posts/likes/${this.userId}`, {
-                headers: {
-                    Authorization: `Bearer ${this.token}`,
-                    'Content-Type': 'application/json'
-                }
-            })
-            .then(response => {
-                this.likePosts = response.data
-                console.log(this.likePosts)
             })
             .catch(error => {
                 console.log(error)

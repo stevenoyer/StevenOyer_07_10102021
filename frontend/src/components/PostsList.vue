@@ -30,7 +30,7 @@
             </div>
         </div>
         <div class="card-footer text-end">
-            <button :id="'button-like-' + id" @click="like(id)" class="btn" :class="{'liked' : isLiked}"><i class="fas fa-heart"></i></button>
+            <button :id="'button-like-' + id" @click="like(id)" class="btn"><i class="fas fa-heart"></i></button>
             <router-link class="btn" :to="'/post/' + id"><i class="fas fa-comments"></i></router-link>
             <button class="btn disabled"><i class="fas fa-share"></i></button>
         </div>
@@ -60,8 +60,7 @@ export default {
         like_post: Number,
         like_user: Number,
         content: String,
-        avatar: String,
-        isLiked: Boolean
+        avatar: String
     },
     computed: {
         ...mapState(['token', 'userId', 'admin']),
