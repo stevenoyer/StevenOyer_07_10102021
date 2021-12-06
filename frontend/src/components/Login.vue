@@ -63,7 +63,12 @@
             validateFields: function() {
                 if (this.mode == 'create') {
                     if (this.prenom != "" && this.nom != "" && this.email != "" && this.pass != "") {
-                        return true
+                        let formatEmail = /^[a-z0-9._%+-]+@[a-z0-9.-]+\.[a-z]{2,4}$/
+                        if (this.email.match(formatEmail)) {
+                            return true
+                        }else {
+                            return false
+                        }
                     }else {
                         return false
                     }
@@ -131,7 +136,8 @@
                 }).then(response => {
                     console.log(response)
                     if (response.status != 201) {
-                        alert('Une erreur est survenue lors de la création du compte.')
+                        alert('Une erreur est survenue lors de la création du compte. \r\nErreur : ' + response.data.message)
+                        return false
                     }
                     this.login({email: this.email, pass: this.pass})
                 }).catch(error => console.log(error))

@@ -11,7 +11,7 @@ exports.getUserById = (req, res, next) => {
         if (err)
         {
             console.log(err)
-            return res.status(401).json({error: err})
+            return res.status(401).json({message: err})
         }
         return res.status(200).json(result)
     })
@@ -32,27 +32,27 @@ exports.signup = (req, res, next) => {
     if (!email.match(regex))
     {
         console.log('Adresse e-mail non valide.')
-        return res.status(200).json({error: 'Adresse e-mail non valide.'})
+        return res.status(200).json({message: 'Adresse e-mail non valide.'})
     }
 
     if (mdp.length < 6 || mdp.length > 35)
     {
         console.log('Le mot de passe doit contenir entre 6 et 35 caractères.')
-        return res.status(200).json({error: 'Le mot de passe doit contenir entre 6 et 35 caractères.'})
+        return res.status(200).json({message: 'Le mot de passe doit contenir entre 6 et 35 caractères.'})
     }
 
     db.query(`SELECT * FROM users WHERE email = ?`, [email], (err, results, rows) => {
         console.log(results.length)
         if (results.length > 0)
         {
-            res.status(401).json({message: 'L\'adresse e-mail est déjà utilisé.'})
+            res.status(200).json({message: 'L\'adresse e-mail est déjà utilisé.'})
         }
         else 
         {
             bcrypt.hash(mdp, 10, (err, hash) => {
                 if (err)
                 {
-                    return res.status(401).json({message: err})
+                    return res.status(200).json({message: err})
                 }
                 console.log('Email : ', email, ' / Prenom : ', prenom, ' / Nom : ', nom, ' / Mdp : ', mdp, ' / Mdp hash : ', hash)
 
