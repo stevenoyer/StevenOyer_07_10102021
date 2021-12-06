@@ -68,8 +68,8 @@ N'oubliez pas de créer le dossier 'images' dans le backend.
 **Models :** 
 > Un modèle permet d'interagir avec les sources de données, effectuer la validation des données et représenter les relations entre les données.
 
-** API : **
+**API :**
 > Une API est un ensemble de définitions et de protocoles qui facilite la création et l'intégration de logiciels d'applications. API est un acronyme anglais qui signifie « Application Programming Interface », que l'on traduit par interface de programmation d'application.
 
-** API RES :**
+**API RES :**
 > REST signifie Representational State Transfer (ou transfert d’état de représentation, en français), et constitue un ensemble de normes, ou de lignes directrices architecturales qui structurent la façon de communiquer les données entre votre application et le reste du monde, ou entre différents composants de votre application.
